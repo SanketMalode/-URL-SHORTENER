@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login with Particles</title>
+
+  <!-- Anime.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      background: rgb(154, 125, 125);
+    }
+
+    /* Animated Background */
+    .background-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      background-size: 400% 400%;
+      animation: gradientAnimation 8s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* Particle effect */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(108, 99, 255, 0.8);
+      pointer-events: none;
+      width: 8px;
+      height: 8px;
+      animation: particleAnimation 2s infinite ease-out;
+    }
+
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.8);
+        opacity: 0.7;
+      }
+    }
+
+    .form-container {
+      background-color: #ffffff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      opacity: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input {
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #6c63ff;
+      outline: none;
+    }
+
+    button {
+      padding: 14px;
+      background-color: #6c63ff;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #554dff;
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- Animated Gradient Background -->
+  <div class="background-gradient"></div>
+
+  <!-- Login Form -->
+  <div class="form-container" id="loginForm">
+    <h1>Login</h1>
+    <form action="/user/login" method="post">
+      <label for="email">Email</label>
+      <input type="email" id="email" required name="email" />
+      <label for="password">Password</label>
+      <input type="password" id="password" required name="password" />
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <!-- Anime.js Script -->
+  <script>
+    // Animate login form entrance
+    anime({
+      targets: '#loginForm',
+      translateY: [-100, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      easing: 'easeOutExpo'
+    });
+
+    // Create particles on mouse movement
+    document.addEventListener("mousemove", (event) => {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.body.appendChild(particle);
+
+      // Randomize particle position and animation
+      const size = Math.random() * 10 + 5;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${event.pageX}px`;
+      particle.style.top = `${event.pageY}px`;
+
+      // Animation of the particle
+      anime({
+        targets: particle,
+        translateX: anime.random(-30, 30),
+        translateY: anime.random(-30, 30),
+        scale: anime.random(0.5, 1.5),
+        duration: 1000,
+        easing: 'easeInOutSine',
+        complete: () => {
+          particle.remove();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shortener URL</title>
+
+  <!-- Anime.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: rgb(154, 125, 125);
+      position: relative;
+    }
+
+    /* Shared background gradient */
+    .background-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      background-size: 400% 400%;
+      animation: gradientAnimation 8s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* Particle effect */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(108, 99, 255, 0.8);
+      pointer-events: none;
+      width: 8px;
+      height: 8px;
+      animation: particleAnimation 2s infinite ease-out;
+    }
+
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.8);
+        opacity: 0.7;
+      }
+    }
+
+    h1 {
+      margin: 40px auto 0;
+      text-align: center;
+      color: #fff;
+      opacity: 0;
+    }
+
+    form {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      margin: 40px auto;
+      width: 90%;
+      max-width: 500px;
+      opacity: 0;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: #444;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #6c63ff;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #554dff;
+    }
+
+    #copy-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #copy-btn:hover {
+      background-color: #554dff;
+    }
+
+    p#generated-url {
+      background-color: #d4edda;
+      padding: 12px 20px;
+      border-radius: 20px;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      margin: 20px auto;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      opacity: 0;
+    }
+
+    table {
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+    }
+
+    th, td {
+      padding: 14px 18px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #efeff3;
+      color: #000;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background and particles -->
+  <div class="background-gradient"></div>
+
+  <h1 id="main-heading">Shortener URL</h1>
+
+  <% if (locals.id) { %>
+    <p id="generated-url">
+      URL Generated:
+      <strong id="short-url">http://localhost:3000/<%= id %></strong>
+      <button id="copy-btn">Copy</button>
+    </p>
+  <% } %>
+
+  <form method="post" action="/url" id="shorten-form">
+    <label>Enter your Original URL</label>
+    <input type="text" name="URL" placeholder="https://example.com" required />
+    <button type="submit">Generate</button>
+  </form>
+
+  <% if (locals.urls) { %>
+    <table id="url-table">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>ShortID</th>
+          <th>Redirect</th>
+          <th>Clicks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% urls.forEach((url, index) => { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= url.ShortID %></td>
+            <td><%= url.RedirectURL %></td>
+            <td><%= url.VisitHistory.length %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+
+  <script>
+    
+    document.addEventListener("mousemove", (event) => {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      document.body.appendChild(particle);
+
+      const size = Math.random() * 10 + 5;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${event.pageX}px`;
+      particle.style.top = `${event.pageY}px`;
+
+      anime({
+        targets: particle,
+        translateX: anime.random(-30, 30),
+        translateY: anime.random(-30, 30),
+        scale: anime.random(0.5, 1.5),
+        duration: 1000,
+        easing: 'easeInOutSine',
+        complete: () => {
+          particle.remove();
+        }
+      });
+    });
+
+    // Header animation
+    anime({
+      targets: '#main-heading',
+      translateY: [-40, 0],
+      opacity: [0, 1],
+      duration: 1000,
+      easing: 'easeOutExpo'
+    });
+
+    // Form animation
+    anime({
+      targets: '#shorten-form',
+      translateY: [40, 0],
+      opacity: [0, 1],
+      delay: 400,
+      duration: 1000,
+      easing: 'easeOutExpo'
+    });
+
+    // URL message animation
+    const urlMsg = document.querySelector('#generated-url');
+    if (urlMsg) {
+      anime({
+        targets: urlMsg,
+        scale: [0.8, 1],
+        opacity: [0, 1],
+        delay: 800,
+        duration: 800,
+        easing: 'easeOutBack'
+      });
+
+      const copyBtn = document.getElementById('copy-btn');
+      const shortUrl = document.getElementById('short-url').textContent;
+
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(shortUrl).then(() => {
+          alert('Short URL copied to clipboard!');
+        }).catch(err => {
+          alert('Failed to copy URL.');
+          console.error(err);
+        });
+      });
+    }
+
+    // Table animation
+    const table = document.querySelector('#url-table');
+    if (table) {
+      anime({
+        targets: table,
+        opacity: [0, 1],
+        delay: 800,
+        duration: 800,
+        easing: 'easeOutExpo'
+      });
+
+      anime({
+        targets: '#url-table tbody tr',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        delay: anime.stagger(100, { start: 1000 }),
+        duration: 600,
+        easing: 'easeOutCubic'
+      });
+    }
+  </script>
+</body>
+</html>
